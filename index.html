@@ -10,82 +10,163 @@
 </head>
 <body>
 
-<div class="stage">
+<div class="bg-blobs" aria-hidden="true">
+  <span class="blob blob-a"></span>
+  <span class="blob blob-b"></span>
+  <span class="blob blob-c"></span>
+</div>
 
-  <div class="deck">
-    <div class="deck-left">
-      <div class="platter">
-        <div class="tonearm" id="tonearm"></div>
-        <div class="record" id="record">
-          <div class="record-label" id="recordLabel">
-            <span class="label-title" id="labelTitle">—</span>
+<div class="app">
+
+  <header class="topbar glass">
+    <div class="brand">
+      <span class="brand-mark">◎</span>
+      <span class="brand-name">NOCTURNE</span>
+    </div>
+
+    <div class="topbar-right">
+      <div class="live-badge" id="liveBadge" title="Simulated listener count — no live backend connected">
+        <span class="live-dot"></span>
+        <span id="liveCount" class="mono">--</span>
+        <span class="live-label">listening now</span>
+      </div>
+      <button class="pill-btn spotify-btn" id="spotifyConnectBtn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.4a.63.63 0 0 1-.86.21c-2.36-1.44-5.32-1.77-8.81-.97a.63.63 0 1 1-.28-1.23c3.82-.87 7.1-.5 9.74 1.12.3.18.39.57.21.87zm1.22-2.72a.78.78 0 0 1-1.08.26c-2.7-1.66-6.82-2.14-10.02-1.17a.79.79 0 1 1-.46-1.51c3.65-1.11 8.19-.57 11.3 1.34.37.23.49.72.26 1.08zm.11-2.84C14.98 8.9 9.08 8.7 5.65 9.74a.94.94 0 1 1-.55-1.8c3.94-1.2 10.43-.96 14.36 1.36a.94.94 0 0 1-.96 1.62z"></path></svg>
+        <span id="spotifyBtnLabel">Connect Spotify</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="stage">
+
+    <div class="deck glass">
+      <div class="deck-left">
+        <div class="platter">
+          <div class="tonearm" id="tonearm"></div>
+          <div class="record" id="record">
+            <div class="record-label" id="recordLabel">
+              <span class="label-title" id="labelTitle">—</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="deck-right">
-      <p class="eyebrow">NOW PLAYING <span class="led-dot" id="ledDot"></span></p>
-      <h1 id="trackTitle">—</h1>
-      <p id="trackArtist">—</p>
+      <div class="deck-right">
+        <p class="eyebrow">NOW PLAYING <span class="led-dot" id="ledDot"></span></p>
+        <h1 id="trackTitle">—</h1>
+        <p id="trackArtist">—</p>
 
-      <div class="progress-row">
-        <span class="time mono" id="curTime">0:00</span>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-          <input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Seek">
+        <div class="progress-row">
+          <span class="time mono" id="curTime">0:00</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+            <input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Seek">
+          </div>
+          <span class="time mono" id="durTime">0:00</span>
         </div>
-        <span class="time mono" id="durTime">0:00</span>
-      </div>
 
-      <div class="controls-row">
-        <button class="icon-btn" id="shuffleBtn" title="Shuffle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
-        </button>
-        <button class="icon-btn" id="prevBtn" title="Previous">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM10 12l9-6v12z"></path></svg>
-        </button>
-        <button class="play-btn" id="playBtn" title="Play/Pause">
-          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
-        </button>
-        <button class="icon-btn" id="nextBtn" title="Next">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM5 6l9 6-9 6z"></path></svg>
-        </button>
-        <button class="icon-btn" id="repeatBtn" title="Repeat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-        </button>
-      </div>
-
-      <div class="secondary-row">
-        <button class="icon-btn" id="favBtn" title="Favorite">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
-        </button>
-
-        <div class="volume-wrap">
-          <button class="icon-btn" id="muteBtn" title="Mute">
-            <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5z"></path></svg>
+        <div class="controls-row">
+          <button class="icon-btn" id="shuffleBtn" title="Shuffle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
           </button>
-          <input type="range" id="volume" min="0" max="100" value="80" aria-label="Volume">
+          <button class="icon-btn" id="prevBtn" title="Previous">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM10 12l9-6v12z"></path></svg>
+          </button>
+          <button class="play-btn" id="playBtn" title="Play/Pause">
+            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+          </button>
+          <button class="icon-btn" id="nextBtn" title="Next">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM5 6l9 6-9 6z"></path></svg>
+          </button>
+          <button class="icon-btn" id="repeatBtn" title="Repeat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </button>
         </div>
 
-        <label class="upload-btn" for="fileInput">+ LOAD FILES</label>
-        <input type="file" id="fileInput" accept="audio/*" multiple hidden>
+        <div class="secondary-row">
+          <button class="icon-btn" id="favBtn" title="Favorite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
+          </button>
+
+          <div class="volume-wrap">
+            <button class="icon-btn" id="muteBtn" title="Mute">
+              <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5z"></path></svg>
+            </button>
+            <input type="range" id="volume" min="0" max="100" value="80" aria-label="Volume">
+          </div>
+
+          <button class="pill-btn ghost" id="addFilesBtn">+ ADD FILES</button>
+          <input type="file" id="fileInput" accept="audio/*" multiple hidden>
+        </div>
       </div>
     </div>
+
+    <aside class="playlist-panel glass">
+      <div class="playlist-header">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="library">Library</button>
+          <button class="tab-btn" data-tab="spotify">Spotify</button>
+        </div>
+        <span id="trackCount" class="mono">00 / 00</span>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M12 4l-4 4M12 4l4 4"></path><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>
+        <span>Drop audio files here, or <label for="fileInput" class="dz-link">browse</label></span>
+      </div>
+
+      <div class="tab-panel" id="libraryPanel">
+        <ul id="playlist"></ul>
+      </div>
+
+      <div class="tab-panel" id="spotifyPanel" hidden>
+        <div id="spotifyDisconnected" class="spotify-empty">
+          <p>Connect your Spotify account to browse and import your playlists.</p>
+          <button class="pill-btn spotify-btn" id="spotifyConnectBtn2">Connect Spotify</button>
+        </div>
+        <div id="spotifyConnected" hidden>
+          <div class="spotify-profile" id="spotifyProfile"></div>
+          <div id="spotifyPlaylistsView"></div>
+          <div id="spotifyTracksView" hidden></div>
+        </div>
+      </div>
+    </aside>
+
   </div>
+</div>
 
-  <aside class="playlist-panel">
-    <div class="playlist-header">
-      <h2>TRACKLIST</h2>
-      <span id="trackCount" class="mono">00 / 00</span>
-    </div>
-    <ul id="playlist"></ul>
-  </aside>
+<div class="drag-overlay" id="dragOverlay">
+  <div class="drag-card glass">
+    <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4"></path><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>
+    <p>Drop to add to your library</p>
+  </div>
+</div>
 
+<div class="modal-backdrop" id="spotifyModalBackdrop" hidden>
+  <div class="modal glass" id="spotifyModal">
+    <button class="modal-close" id="spotifyModalClose">&times;</button>
+    <h2>Connect Spotify</h2>
+    <p class="modal-sub">Spotify requires every app to use its own credentials — Anthropic can't provide a shared one. It only takes a minute:</p>
+    <ol class="modal-steps">
+      <li>Open the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a> and create an app (free).</li>
+      <li>In the app's settings, add this exact Redirect URI:
+        <div class="redirect-copy">
+          <code id="redirectUriDisplay" class="mono"></code>
+          <button class="copy-btn" id="copyRedirectBtn" title="Copy">Copy</button>
+        </div>
+      </li>
+      <li>Copy the app's <strong>Client ID</strong> and paste it below.</li>
+    </ol>
+    <label class="field-label" for="clientIdInput">Spotify Client ID</label>
+    <input type="text" id="clientIdInput" class="text-input" placeholder="e.g. 1a2b3c4d5e6f...">
+    <button class="pill-btn spotify-btn full-width" id="authorizeBtn">Authorize with Spotify</button>
+    <p class="modal-note">Full-track playback needs Spotify Premium and is only available in-browser via Spotify's own player. Free accounts and tracks without previews will show a link to open in Spotify instead.</p>
+  </div>
 </div>
 
 <audio id="audio" preload="metadata"></audio>
 
 <script src="script.js"></script>
+<script src="spotify.js"></script>
 </body>
 </html>
