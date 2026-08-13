@@ -49,12 +49,62 @@
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', (e) => { if(e.target === modalBackdrop) closeModal(); });
 
-  copyRedirectBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(redirectUri).then(() => {
-      copyRedirectBtn.textContent = 'Copied';
-      setTimeout(() => copyRedirectBtn.textContent = 'Copy', 1500);
-    });
+  function flashCopied(){
+    copyRedirectBtn.textContent = 'Copied';
+    copyRedirectBtn.classList.add('copied');
+    setTimeout(() => {
+      copyRedirectBtn.textContent = 'Copy';
+      copyRedirectBtn.classList.remove('copied');
+    }, 1500);
+  }
+
+  function selectRedirectText(){
+    const range = document.createRange();
+    range.selectNodeContents(redirectUriDisplay);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    return sel;
+  }
+
+  function fallbackCopy(){
+    // Works even when the async Clipboard API is blocked (e.g. inside a
+    // sandboxed preview iframe without clipboard-write permission).
+    try{
+      const sel = selectRedirectText();
+      const ok = document.execCommand('copy');
+      sel.removeAllRanges();
+      return ok;
+    }catch(err){
+      return false;
+    }
+  }
+
+  copyRedirectBtn.addEventListener('click', async () => {
+    let copied = false;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      try{
+        await navigator.clipboard.writeText(redirectUri);
+        copied = true;
+      }catch(err){
+        copied = fallbackCopy();
+      }
+    } else {
+      copied = fallbackCopy();
+    }
+
+    if(copied){
+      flashCopied();
+    } else {
+      // Last resort: select the text so the user can copy manually (Ctrl/Cmd+C).
+      selectRedirectText();
+      copyRedirectBtn.textContent = 'Selected — press Ctrl/Cmd+C';
+      setTimeout(() => copyRedirectBtn.textContent = 'Copy', 2500);
+    }
   });
+
+  // Clicking the URI itself also selects it, since the field is read-only text.
+  redirectUriDisplay.addEventListener('click', selectRedirectText);
 
   // ---------- Kick off auth ----------
   authorizeBtn.addEventListener('click', () => {
