@@ -30,10 +30,6 @@
         <span id="liveCount" class="mono">--</span>
         <span class="live-label">listening now</span>
       </div>
-      <button class="pill-btn spotify-btn" id="spotifyConnectBtn">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.4a.63.63 0 0 1-.86.21c-2.36-1.44-5.32-1.77-8.81-.97a.63.63 0 1 1-.28-1.23c3.82-.87 7.1-.5 9.74 1.12.3.18.39.57.21.87zm1.22-2.72a.78.78 0 0 1-1.08.26c-2.7-1.66-6.82-2.14-10.02-1.17a.79.79 0 1 1-.46-1.51c3.65-1.11 8.19-.57 11.3 1.34.37.23.49.72.26 1.08zm.11-2.84C14.98 8.9 9.08 8.7 5.65 9.74a.94.94 0 1 1-.55-1.8c3.94-1.2 10.43-.96 14.36 1.36a.94.94 0 0 1-.96 1.62z"></path></svg>
-        <span id="spotifyBtnLabel">Connect Spotify</span>
-      </button>
     </div>
   </header>
 
@@ -103,10 +99,7 @@
 
     <aside class="playlist-panel glass">
       <div class="playlist-header">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="library">Library</button>
-          <button class="tab-btn" data-tab="spotify">Spotify</button>
-        </div>
+        <h2 class="panel-title">TRACKLIST</h2>
         <span id="trackCount" class="mono">00 / 00</span>
       </div>
 
@@ -115,20 +108,14 @@
         <span>Drop audio files here, or <label for="fileInput" class="dz-link">browse</label></span>
       </div>
 
-      <div class="tab-panel" id="libraryPanel">
-        <ul id="playlist"></ul>
-      </div>
+      <form class="url-add-row" id="urlAddForm">
+        <input type="url" id="urlInput" class="text-input" placeholder="Paste a direct audio link (.mp3, .wav…)" inputmode="url">
+        <button type="submit" class="pill-btn url-add-btn">Add</button>
+      </form>
+      <p class="url-hint" id="urlHint" hidden></p>
 
-      <div class="tab-panel" id="spotifyPanel" hidden>
-        <div id="spotifyDisconnected" class="spotify-empty">
-          <p>Connect your Spotify account to browse and import your playlists.</p>
-          <button class="pill-btn spotify-btn" id="spotifyConnectBtn2">Connect Spotify</button>
-        </div>
-        <div id="spotifyConnected" hidden>
-          <div class="spotify-profile" id="spotifyProfile"></div>
-          <div id="spotifyPlaylistsView"></div>
-          <div id="spotifyTracksView" hidden></div>
-        </div>
+      <div class="tab-panel">
+        <ul id="playlist"></ul>
       </div>
     </aside>
 
@@ -142,31 +129,8 @@
   </div>
 </div>
 
-<div class="modal-backdrop" id="spotifyModalBackdrop" hidden>
-  <div class="modal glass" id="spotifyModal">
-    <button class="modal-close" id="spotifyModalClose">&times;</button>
-    <h2>Connect Spotify</h2>
-    <p class="modal-sub">Spotify requires every app to use its own credentials — Anthropic can't provide a shared one. It only takes a minute:</p>
-    <ol class="modal-steps">
-      <li>Open the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a> and create an app (free).</li>
-      <li>In the app's settings, add this exact Redirect URI:
-        <div class="redirect-copy">
-          <code id="redirectUriDisplay" class="mono"></code>
-          <button class="copy-btn" id="copyRedirectBtn" title="Copy">Copy</button>
-        </div>
-      </li>
-      <li>Copy the app's <strong>Client ID</strong> and paste it below.</li>
-    </ol>
-    <label class="field-label" for="clientIdInput">Spotify Client ID</label>
-    <input type="text" id="clientIdInput" class="text-input" placeholder="e.g. 1a2b3c4d5e6f...">
-    <button class="pill-btn spotify-btn full-width" id="authorizeBtn">Authorize with Spotify</button>
-    <p class="modal-note">Full-track playback needs Spotify Premium and is only available in-browser via Spotify's own player. Free accounts and tracks without previews will show a link to open in Spotify instead.</p>
-  </div>
-</div>
-
 <audio id="audio" preload="metadata"></audio>
 
 <script src="script.js"></script>
-<script src="spotify.js"></script>
 </body>
 </html>

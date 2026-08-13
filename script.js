@@ -76,9 +76,9 @@
       const swatchStyle = t.art
         ? `background-image:url('${t.art}')`
         : `background:linear-gradient(135deg, ${c1}, ${c2})`;
-      const badge = t.source === 'spotify'
-        ? `<span class="src-badge spotify">SPOTIFY</span>`
-        : (t.source === 'local' ? `<span class="src-badge local">LOCAL</span>` : '');
+      const badge = t.source === 'local'
+        ? `<span class="src-badge local">LOCAL</span>`
+        : (t.source === 'url' ? `<span class="src-badge url">URL</span>` : '');
       const li = document.createElement('li');
       li.className = 'track-row' + (i === current ? ' active' : '');
       li.innerHTML = `
@@ -315,18 +315,42 @@
     }
   });
 
-  // ---------- Tabs ----------
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const libraryPanel = document.getElementById('libraryPanel');
-  const spotifyPanel = document.getElementById('spotifyPanel');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const tab = btn.dataset.tab;
-      libraryPanel.hidden = tab !== 'library';
-      spotifyPanel.hidden = tab !== 'spotify';
-    });
+  // ---------- Add from URL ----------
+  const urlAddForm = document.getElementById('urlAddForm');
+  const urlInput = document.getElementById('urlInput');
+  const urlHint = document.getElementById('urlHint');
+
+  function showUrlHint(msg, isError){
+    urlHint.textContent = msg;
+    urlHint.hidden = false;
+    urlHint.classList.toggle('error', !!isError);
+  }
+
+  urlAddForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const url = urlInput.value.trim();
+    if(!url) return;
+
+    let parsed;
+    try{ parsed = new URL(url); }catch(err){
+      showUrlHint('That doesn\'t look like a valid URL.', true);
+      return;
+    }
+    if(parsed.protocol !== 'http:' && parsed.protocol !== 'https:'){
+      showUrlHint('Only http:// or https:// links are supported.', true);
+      return;
+    }
+
+    const fileName = decodeURIComponent(parsed.pathname.split('/').pop() || 'Untitled');
+    const title = fileName.replace(/\.[^/.]+$/, '') || 'Untitled track';
+
+    const startIdx = tracks.length;
+    tracks.push({ title, artist: parsed.hostname, src: url, fav:false, dur:0, source:'url' });
+    renderPlaylist();
+    loadTrack(startIdx, true);
+
+    urlInput.value = '';
+    showUrlHint('Added — if it doesn\'t play, the link may not allow direct/cross-site audio access.', false);
   });
 
   // ---------- Keyboard shortcuts ----------
@@ -353,21 +377,6 @@
       el.textContent = count.toLocaleString();
     }, 2500);
   })();
-
-  // ---------- Public API for spotify.js ----------
-  window.Player = {
-    addTracks(newTracks, opts){
-      opts = opts || {};
-      const startIdx = tracks.length;
-      newTracks.forEach(t => tracks.push(Object.assign({ fav:false, dur:0, source:'spotify' }, t)));
-      renderPlaylist();
-      if(opts.play){ loadTrack(startIdx, true); }
-    },
-    getTracks(){ return tracks; },
-    switchToLibraryTab(){
-      document.querySelector('.tab-btn[data-tab="library"]').click();
-    }
-  };
 
   // ---------- Init ----------
   audio.volume = 0.8;
