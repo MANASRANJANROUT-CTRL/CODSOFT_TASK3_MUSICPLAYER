@@ -1,19 +1,19 @@
 (function(){
   "use strict";
 
-  // ---------- Data ----------
+  // ---------- Seed data ----------
   const palettes = [
     ['#f0b458','#c97a2e'], ['#e8896a','#b34a3a'], ['#7fbfa0','#3f7a5f'],
     ['#8fa8d6','#4a5e8f'], ['#d6a5d9','#8a5a90'], ['#e0c96a','#a68a2e']
   ];
 
   const tracks = [
-    { title:"Nocturne Radio", artist:"Midnight Frequency", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", fav:false, dur:0 },
-    { title:"Cassette Bloom", artist:"Analog Drift", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", fav:false, dur:0 },
-    { title:"Static & Amber", artist:"Low Fidelity Society", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", fav:false, dur:0 },
-    { title:"Second Floor Lounge", artist:"Vinyl Room", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", fav:false, dur:0 },
-    { title:"Slow Dial", artist:"Copper Wire", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", fav:false, dur:0 },
-    { title:"After Hours Static", artist:"Nocturne Radio", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", fav:false, dur:0 }
+    { title:"Nocturne Radio", artist:"Midnight Frequency", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", fav:false, dur:0, source:'demo' },
+    { title:"Cassette Bloom", artist:"Analog Drift", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", fav:false, dur:0, source:'demo' },
+    { title:"Static & Amber", artist:"Low Fidelity Society", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", fav:false, dur:0, source:'demo' },
+    { title:"Second Floor Lounge", artist:"Vinyl Room", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", fav:false, dur:0, source:'demo' },
+    { title:"Slow Dial", artist:"Copper Wire", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", fav:false, dur:0, source:'demo' },
+    { title:"After Hours Static", artist:"Nocturne Radio", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", fav:false, dur:0, source:'demo' }
   ];
 
   // ---------- State ----------
@@ -23,7 +23,6 @@
   let repeatMode = 0; // 0 off, 1 all, 2 one
   let isMuted = false;
   let lastVolume = 80;
-  let history = [];
 
   // ---------- Elements ----------
   const audio = document.getElementById('audio');
@@ -51,6 +50,9 @@
   const playlistEl = document.getElementById('playlist');
   const trackCountEl = document.getElementById('trackCount');
   const fileInput = document.getElementById('fileInput');
+  const addFilesBtn = document.getElementById('addFilesBtn');
+  const dropzone = document.getElementById('dropzone');
+  const dragOverlay = document.getElementById('dragOverlay');
 
   // ---------- Helpers ----------
   function fmtTime(s){
@@ -61,20 +63,32 @@
   }
 
   function paletteFor(i){ return palettes[i % palettes.length]; }
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
 
   function renderPlaylist(){
     playlistEl.innerHTML = '';
     tracks.forEach((t, i) => {
       const [c1,c2] = paletteFor(i);
+      const swatchStyle = t.art
+        ? `background-image:url('${t.art}')`
+        : `background:linear-gradient(135deg, ${c1}, ${c2})`;
+      const badge = t.source === 'spotify'
+        ? `<span class="src-badge spotify">SPOTIFY</span>`
+        : (t.source === 'local' ? `<span class="src-badge local">LOCAL</span>` : '');
       const li = document.createElement('li');
       li.className = 'track-row' + (i === current ? ' active' : '');
       li.innerHTML = `
         <span class="track-num mono">${String(i+1).padStart(2,'0')}</span>
-        <span class="track-swatch" style="background:linear-gradient(135deg, ${c1}, ${c2})"></span>
+        <span class="track-swatch" style="${swatchStyle}"></span>
         <span class="track-info">
           <span class="t-title">${escapeHtml(t.title)}</span>
           <span class="t-artist">${escapeHtml(t.artist)}</span>
         </span>
+        ${badge}
         <span class="track-dur mono">${t.dur ? fmtTime(t.dur) : '--:--'}</span>
         <button class="fav-toggle${t.fav ? ' active' : ''}" data-idx="${i}" title="Favorite">
           <svg viewBox="0 0 24 24" fill="${t.fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
@@ -95,12 +109,6 @@
     trackCountEl.textContent = `${String(current+1).padStart(2,'0')} / ${String(tracks.length).padStart(2,'0')}`;
   }
 
-  function escapeHtml(str){
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-  }
-
   function updateFavButton(){
     const on = tracks[current].fav;
     favBtn.classList.toggle('toggled', on);
@@ -109,26 +117,27 @@
   }
 
   function loadTrack(index, autoplay){
+    if(!tracks.length) return;
     current = index;
     const t = tracks[current];
     audio.src = t.src;
     trackTitleEl.textContent = t.title;
     trackArtistEl.textContent = t.artist;
     labelTitleEl.textContent = t.title;
-    const [c1,c2] = paletteFor(current);
-    recordLabelEl.style.background = `radial-gradient(circle at 35% 30%, ${c1}, ${c2} 75%)`;
+    if(t.art){
+      recordLabelEl.style.backgroundImage = `url('${t.art}')`;
+    } else {
+      const [c1,c2] = paletteFor(current);
+      recordLabelEl.style.backgroundImage = 'none';
+      recordLabelEl.style.background = `radial-gradient(circle at 35% 30%, ${c1}, ${c2} 75%)`;
+    }
     updateFavButton();
     renderPlaylist();
     seek.value = 0;
     progressFill.style.width = '0%';
     curTimeEl.textContent = '0:00';
     durTimeEl.textContent = t.dur ? fmtTime(t.dur) : '0:00';
-    history.push(current);
-    if(autoplay !== false){
-      play();
-    } else {
-      pause();
-    }
+    if(autoplay !== false){ play(); } else { pause(); }
   }
 
   function play(){
@@ -178,15 +187,12 @@
   }
 
   function goPrev(){
-    if(audio.currentTime > 3){
-      audio.currentTime = 0;
-      return;
-    }
+    if(audio.currentTime > 3){ audio.currentTime = 0; return; }
     let prevIdx = isShuffle ? pickShuffleIndex() : (current - 1 + tracks.length) % tracks.length;
     loadTrack(prevIdx, true);
   }
 
-  // ---------- Events ----------
+  // ---------- Core control events ----------
   playBtn.addEventListener('click', togglePlay);
   nextBtn.addEventListener('click', () => goNext(true));
   prevBtn.addEventListener('click', goPrev);
@@ -199,7 +205,6 @@
   repeatBtn.addEventListener('click', () => {
     repeatMode = (repeatMode + 1) % 3;
     repeatBtn.classList.toggle('toggled', repeatMode !== 0);
-    repeatBtn.style.color = repeatMode === 2 ? 'var(--amber)' : (repeatMode === 1 ? 'var(--amber)' : '');
     repeatBtn.title = repeatMode === 0 ? 'Repeat: off' : (repeatMode === 1 ? 'Repeat: all' : 'Repeat: one');
   });
 
@@ -265,29 +270,104 @@
     volIcon.innerHTML = path;
   }
 
-  // File upload — play local files
-  fileInput.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files || []);
+  // ---------- Local file adding (button + drag & drop) ----------
+  function handleFiles(fileList){
+    const files = Array.from(fileList || []).filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|flac|aac)$/i.test(f.name));
     if(!files.length) return;
     const startIdx = tracks.length;
     files.forEach((f) => {
       const url = URL.createObjectURL(f);
       const name = f.name.replace(/\.[^/.]+$/, '');
-      tracks.push({ title: name, artist: "Local file", src: url, fav:false, dur:0 });
+      tracks.push({ title: name, artist: "Local file", src: url, fav:false, dur:0, source:'local' });
     });
     renderPlaylist();
     loadTrack(startIdx, true);
+  }
+
+  addFilesBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('hover'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('hover'));
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('hover');
+    handleFiles(e.dataTransfer.files);
   });
 
-  // Keyboard shortcuts
+  let dragDepth = 0;
+  window.addEventListener('dragenter', (e) => {
+    if(!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+    dragDepth++;
+    dragOverlay.classList.add('active');
+  });
+  window.addEventListener('dragleave', () => {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if(dragDepth === 0) dragOverlay.classList.remove('active');
+  });
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragDepth = 0;
+    dragOverlay.classList.remove('active');
+    if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){
+      handleFiles(e.dataTransfer.files);
+    }
+  });
+
+  // ---------- Tabs ----------
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const libraryPanel = document.getElementById('libraryPanel');
+  const spotifyPanel = document.getElementById('spotifyPanel');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      libraryPanel.hidden = tab !== 'library';
+      spotifyPanel.hidden = tab !== 'spotify';
+    });
+  });
+
+  // ---------- Keyboard shortcuts ----------
   document.addEventListener('keydown', (e) => {
-    if(e.target.tagName === 'INPUT') return;
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if(e.code === 'Space'){ e.preventDefault(); togglePlay(); }
     else if(e.code === 'ArrowRight'){ audio.currentTime = Math.min(audio.duration||0, audio.currentTime + 5); }
     else if(e.code === 'ArrowLeft'){ audio.currentTime = Math.max(0, audio.currentTime - 5); }
     else if(e.code === 'ArrowUp'){ e.preventDefault(); volumeInput.value = Math.min(100, Number(volumeInput.value)+5); volumeInput.dispatchEvent(new Event('input')); }
     else if(e.code === 'ArrowDown'){ e.preventDefault(); volumeInput.value = Math.max(0, Number(volumeInput.value)-5); volumeInput.dispatchEvent(new Event('input')); }
   });
+
+  // ---------- Simulated "listening now" badge ----------
+  // NOTE: there is no real backend/analytics here — this is a decorative,
+  // client-side simulation so the player feels alive. Wire it to a real
+  // websocket/analytics endpoint if you want genuine listener counts.
+  (function liveListeners(){
+    const el = document.getElementById('liveCount');
+    let count = 800 + Math.floor(Math.random() * 600);
+    el.textContent = count.toLocaleString();
+    setInterval(() => {
+      count += Math.floor((Math.random() - 0.5) * 40);
+      count = Math.max(120, count);
+      el.textContent = count.toLocaleString();
+    }, 2500);
+  })();
+
+  // ---------- Public API for spotify.js ----------
+  window.Player = {
+    addTracks(newTracks, opts){
+      opts = opts || {};
+      const startIdx = tracks.length;
+      newTracks.forEach(t => tracks.push(Object.assign({ fav:false, dur:0, source:'spotify' }, t)));
+      renderPlaylist();
+      if(opts.play){ loadTrack(startIdx, true); }
+    },
+    getTracks(){ return tracks; },
+    switchToLibraryTab(){
+      document.querySelector('.tab-btn[data-tab="library"]').click();
+    }
+  };
 
   // ---------- Init ----------
   audio.volume = 0.8;
