@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nocturne — Deck Player</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="deck">
+    <div class="deck-left">
+      <div class="platter">
+        <div class="tonearm" id="tonearm"></div>
+        <div class="record" id="record">
+          <div class="record-label" id="recordLabel">
+            <span class="label-title" id="labelTitle">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deck-right">
+      <p class="eyebrow">NOW PLAYING <span class="led-dot" id="ledDot"></span></p>
+      <h1 id="trackTitle">—</h1>
+      <p id="trackArtist">—</p>
+
+      <div class="progress-row">
+        <span class="time mono" id="curTime">0:00</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+          <input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Seek">
+        </div>
+        <span class="time mono" id="durTime">0:00</span>
+      </div>
+
+      <div class="controls-row">
+        <button class="icon-btn" id="shuffleBtn" title="Shuffle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+        </button>
+        <button class="icon-btn" id="prevBtn" title="Previous">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM10 12l9-6v12z"></path></svg>
+        </button>
+        <button class="play-btn" id="playBtn" title="Play/Pause">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        </button>
+        <button class="icon-btn" id="nextBtn" title="Next">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM5 6l9 6-9 6z"></path></svg>
+        </button>
+        <button class="icon-btn" id="repeatBtn" title="Repeat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        </button>
+      </div>
+
+      <div class="secondary-row">
+        <button class="icon-btn" id="favBtn" title="Favorite">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path></svg>
+        </button>
+
+        <div class="volume-wrap">
+          <button class="icon-btn" id="muteBtn" title="Mute">
+            <svg id="volIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5z"></path></svg>
+          </button>
+          <input type="range" id="volume" min="0" max="100" value="80" aria-label="Volume">
+        </div>
+
+        <label class="upload-btn" for="fileInput">+ LOAD FILES</label>
+        <input type="file" id="fileInput" accept="audio/*" multiple hidden>
+      </div>
+    </div>
+  </div>
+
+  <aside class="playlist-panel">
+    <div class="playlist-header">
+      <h2>TRACKLIST</h2>
+      <span id="trackCount" class="mono">00 / 00</span>
+    </div>
+    <ul id="playlist"></ul>
+  </aside>
+
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
